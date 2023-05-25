@@ -7,7 +7,9 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, CoinManagerDelegate {
+
+    var coinManager = CoinManager()
     
     private lazy var byteCoin: UILabel = {
         let label = UILabel()
@@ -66,18 +68,27 @@ class MainViewController: UIViewController {
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
     }()
-    
-    
-
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "BackgroundColor")
         pickerView.dataSource = self
         pickerView.delegate = self
+        coinManager.delegate = self
         layout()
     }
 
+    func didUpdatePrice(price: String, currency: String) {
+        
+        DispatchQueue.main.async {
+            self.label.text = price
+            self.coinlabel.text = currency
+        }
+    }
+    
+    func didError(error: Error) {
+        print(error)
+    }
 
 }
 
@@ -87,7 +98,7 @@ extension MainViewController: UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        5
+        coinManager.currencyArray.count
     }
     
     func layout() {
@@ -133,6 +144,6 @@ extension MainViewController: UIPickerViewDataSource {
 
 extension MainViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return "ROWrowROW"
+        return coinManager.currencyArray[row]
     }
 }
